@@ -2,7 +2,33 @@ import { UndefinedVariableError } from "./exception";
 import { AvailableTypes } from "./types";
 
 export const separator = (code: string) => {
-  const [op, ...args] = code.split(" ");
+  const op = code.split(" ")[0];
+  const argsPart = code.slice(op.length + 1);
+
+  let isInQuotes = false;
+  const args: string[] = [];
+  for (let i = 0; i < argsPart.length; i++) {
+    const char = argsPart[i];
+    if (char === '"' && (i === 0 || argsPart[i - 1] !== "\\")) {
+      isInQuotes = !isInQuotes;
+    } else if (char === " ") {
+      continue;
+    } else {
+      let arg = "";
+      while (true) {
+        if (i === argsPart.length || (!isInQuotes && argsPart[i] === " ")) {
+          break;
+        }
+        if (argsPart[i] !== '"') {
+          arg += argsPart[i];
+        } else {
+          isInQuotes = !isInQuotes;
+        }
+        i++;
+      }
+      args.push(arg);
+    }
+  }
 
   return {
     op,

@@ -6,8 +6,6 @@ const memory = new Map<string, AvailableTypes>();
 export function execute(code: string) {
   const { op, args } = separator(code);
 
-  console.log(op, args);
-
   const generatedArgs = args.map((arg) => {
     if (arg.startsWith("{")) {
       return textgen(arg, memory);
