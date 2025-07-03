@@ -9,21 +9,18 @@ export const separator = (code: string) => {
   const args: string[] = [];
   for (let i = 0; i < argsPart.length; i++) {
     const char = argsPart[i];
-    if (char === '"' && (i === 0 || argsPart[i - 1] !== "\\")) {
-      isInQuotes = !isInQuotes;
-    } else if (char === " ") {
+    if (char === " ") {
       continue;
     } else {
       let arg = "";
       while (true) {
+        if (argsPart[i] === '"' && (i === 0 || argsPart[i - 1] !== "\\")) {
+          isInQuotes = !isInQuotes;
+        }
         if (i === argsPart.length || (!isInQuotes && argsPart[i] === " ")) {
           break;
         }
-        if (argsPart[i] !== '"') {
-          arg += argsPart[i];
-        } else {
-          isInQuotes = !isInQuotes;
-        }
+        arg += argsPart[i];
         i++;
       }
       args.push(arg);
@@ -51,9 +48,14 @@ export const textgen = (
     return getValue(template);
   }
 
-  const content = template.replace('"', "");
-  return content.replace(/(\{\w+\})/g, (match) => {
-    const key = match.slice(1, -1);
+  const result = template.replace(/(\{\w+\})/g, (match) => {
+    const key = match.slice(1, -1); // Remove the curly braces
     return getValue(key);
   });
+
+  if (template.startsWith('"')) {
+    return result.slice(1, -1); // Remove the surrounding quotes
+  }
+
+  return result;
 };
